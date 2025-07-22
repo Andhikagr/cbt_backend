@@ -1,4 +1,3 @@
-// models/jwt_claims.go
 package models
 
 import "github.com/golang-jwt/jwt/v5"

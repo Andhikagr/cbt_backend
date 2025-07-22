@@ -22,7 +22,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		claims := &models.JWTClaims{}
 
-		// ✅ Gunakan secret dari config (bukan jwtKey hardcoded)
+		
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(config.JWTSecret), nil
 		})
@@ -32,13 +32,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		/*
-		Ambil token dari header Authorization.
-		Parse dan validasi token pakai secret dari .env.
-		Jika valid → data user (dari claims) disimpan di context:
-		*/
-
-		// Simpan claims ke context
+	
 		ctx := context.WithValue(r.Context(), "user", claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

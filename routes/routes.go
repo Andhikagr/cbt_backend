@@ -44,11 +44,10 @@ func SetupRoutes() http.Handler {
 		w.Write([]byte("Welcome to CBT API"))
 	}).Methods("GET")
 
-	// r.HandleFunc("/login", handlers.LoginUser).Methods("POST")
+	
 	r.HandleFunc("/login", handlers.LoginUser).Methods("POST", "OPTIONS")
 
 
-	// Public GET Endpoints (tanpa token)
 	r.HandleFunc("/questions", handlers.GetQuestions).Methods("GET")
 	r.HandleFunc("/questions/{id}", handlers.GetQuestionByID).Methods("GET")
 	r.HandleFunc("/exams", handlers.GetExams).Methods("GET")

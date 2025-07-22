@@ -9,17 +9,44 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func enableCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*") // Ganti * dengan domain asal untuk produksi
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		enableCORS(w)
+
+		// Handle preflight OPTIONS request
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+
+
+
+
 func SetupRoutes() http.Handler {
 	config.InitDB()
 
 	r := mux.NewRouter()
+	r.Use(corsMiddleware) 
 
 	// ====== Public Routes ======
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome to CBT API"))
 	}).Methods("GET")
 
-	r.HandleFunc("/login", handlers.LoginUser).Methods("POST")
+	// r.HandleFunc("/login", handlers.LoginUser).Methods("POST")
+	r.HandleFunc("/login", handlers.LoginUser).Methods("POST", "OPTIONS")
+
 
 	// Public GET Endpoints (tanpa token)
 	r.HandleFunc("/questions", handlers.GetQuestions).Methods("GET")

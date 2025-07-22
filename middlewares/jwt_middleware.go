@@ -32,6 +32,12 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		/*
+		Ambil token dari header Authorization.
+		Parse dan validasi token pakai secret dari .env.
+		Jika valid → data user (dari claims) disimpan di context:
+		*/
+
 		// Simpan claims ke context
 		ctx := context.WithValue(r.Context(), "user", claims)
 		next.ServeHTTP(w, r.WithContext(ctx))

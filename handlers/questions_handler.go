@@ -13,7 +13,7 @@ import (
 )
 
 func GetQuestions(w http.ResponseWriter, r *http.Request) {
-	// Query semua data soal dari database
+
 
 	rows, err := config.DB.Query(
 		"SELECT id, question_text, option_a, option_b, option_c, option_d, option_e, correct_option, exam_id FROM questions")
@@ -24,7 +24,6 @@ func GetQuestions(w http.ResponseWriter, r *http.Request) {
 		defer rows.Close()
 		var question []models.Question
 
-		// Loop hasil query dan simpan ke slice
 		for rows.Next() {
 			var q models.Question
 			err :=rows.Scan(&q.ID, &q.QuestionText, &q.OptionA, &q.OptionB, &q.OptionC, &q.OptionD, &q.OptionE, &q.CorrectOption, &q.ExamID)
@@ -34,7 +33,7 @@ func GetQuestions(w http.ResponseWriter, r *http.Request) {
 			}
 			question = append(question, q)
 		}
-	// Return hasil query dalam bentuk JSON
+	
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(question)
 }
@@ -106,9 +105,8 @@ if strings.TrimSpace(q.OptionA) == "" ||
 			http.Error(w, "Insert failed"+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		// Ambil ID terakhir yang dimasukkan
+	
 		lastInsertID, _ :=result.LastInsertId()
-		// Kirim response JSON sebagai konfirmasi berhasil
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(map[string]interface{}{

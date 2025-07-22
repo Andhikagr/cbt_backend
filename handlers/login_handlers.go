@@ -42,15 +42,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
-		/* 
-		User mengisi email dan password dari aplikasi.
-		Fungsi LoginUser:
-		Mencocokkan email dengan database (users).
-		Membandingkan password yang dikirim dengan hash di database.
-		Kalau cocok → buat JWT token, isi:
-		*/
-
 	// Buat JWT token
 	claims := models.JWTClaims{
 		UserID: user.ID,
@@ -68,11 +59,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to create token", http.StatusInternalServerError)
 		return
 	}
-	/*
-	Token ditandatangani dengan config.JWTSecret.
-	Token dikirim ke client.
-	*/
-
 
 	// Kirim token ke client
 	w.Header().Set("Content-Type", "application/json")

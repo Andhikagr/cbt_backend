@@ -57,7 +57,7 @@ func CreateSubject(w http.ResponseWriter, r *http.Request) {
 
 	result, err := stmt.Exec(s.Name)
 	if err != nil {
-		// Tangani jika subject sudah ada (karena UNIQUE constraint)
+		
 		if strings.Contains(err.Error(), "Duplicate entry") {
 			http.Error(w, "Subject with that name already exists", http.StatusBadRequest)
 			return
@@ -100,7 +100,7 @@ func DeleteSubject(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    w.WriteHeader(http.StatusNoContent) // 204 No Content
+    w.WriteHeader(http.StatusNoContent) 
 }
 
 // GET /subjects/{id}

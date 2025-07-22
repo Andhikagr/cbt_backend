@@ -151,15 +151,11 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Invalid ID", http.StatusBadRequest)
         return
     }
-
-    // Opsional: Bisa tambahkan cek jika ID yang akan dihapus adalah milik admin yang sedang login, ditolak
-
     result, err := config.DB.Exec("DELETE FROM users WHERE id = ?", id)
     if err != nil {
         http.Error(w, "Failed to delete user: "+err.Error(), http.StatusInternalServerError)
         return
     }
-
     rowsAffected, _ := result.RowsAffected()
     if rowsAffected == 0 {
         http.Error(w, "User not found", http.StatusNotFound)

@@ -9,5 +9,7 @@ type Question struct {
 	OptionD       string `json:"option_d"`
 	OptionE       string `json:"option_e"`
 	CorrectOption string `json:"correct_option"`
-	ExamID        int    `json:"exam_id"`
+	ExamID        int    `json:"exam_id"`    // Untuk satu paket ujian tertentu
+	SubjectID     int    `json:"subject_id"` // Tambahkan ini
+	GradeID       int    `json:"grade_id"`   // Tambahkan ini
 }

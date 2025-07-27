@@ -52,6 +52,7 @@ func CreateGrade(w http.ResponseWriter, r *http.Request) {
 	g.ID = int(id)
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(g)
 }
 
@@ -94,6 +95,7 @@ func GetGradeByID(w http.ResponseWriter, r *http.Request) {
     }
 
     w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(g)
 }
 

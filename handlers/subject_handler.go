@@ -14,7 +14,7 @@ import (
 
 // GET /subjects
 func GetAllSubjects(w http.ResponseWriter, r *http.Request) {
-	rows, err := config.DB.Query("SELECT id, name FROM subjects")
+	rows, err := config.DB.Query("SELECT id, name, grade_id FROM subjects")
 	if err != nil {
 		http.Error(w, "Failed to query subjects", http.StatusInternalServerError)
 		return
@@ -24,7 +24,7 @@ func GetAllSubjects(w http.ResponseWriter, r *http.Request) {
 	var subjects []models.Subject
 	for rows.Next() {
 		var s models.Subject
-		if err := rows.Scan(&s.ID, &s.Name); err != nil {
+		if err := rows.Scan(&s.ID, &s.Name, &s.GradeID); err != nil {
 			http.Error(w, "Failed to scan row", http.StatusInternalServerError)
 			return
 		}
@@ -48,14 +48,14 @@ func CreateSubject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stmt, err := config.DB.Prepare("INSERT INTO subjects (name) VALUES (?)")
+	stmt, err := config.DB.Prepare("INSERT INTO subjects (name, grade_id) VALUES (?, ?)")
 	if err != nil {
 		http.Error(w, "Prepare failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(s.Name)
+	result, err := stmt.Exec(s.Name, s.GradeID)
 	if err != nil {
 		
 		if strings.Contains(err.Error(), "Duplicate entry") {
@@ -113,7 +113,9 @@ func GetSubjectByID(w http.ResponseWriter, r *http.Request) {
     }
 
     var s models.Subject
-    err = config.DB.QueryRow("SELECT id, name FROM subjects WHERE id = ?", id).Scan(&s.ID, &s.Name)
+    err = config.DB.QueryRow("SELECT id, name, grade_id FROM subjects WHERE id = ?", id).
+    Scan(&s.ID, &s.Name, &s.GradeID)
+
     if err != nil {
         if err == sql.ErrNoRows {
             http.Error(w, "Subject not found", http.StatusNotFound)
@@ -125,4 +127,34 @@ func GetSubjectByID(w http.ResponseWriter, r *http.Request) {
 
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(s)
+}
+
+// GET /grades/{id}/subjects
+func GetSubjectsByGradeID(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	gradeID, err := strconv.Atoi(params["id"])
+	if err != nil {
+		http.Error(w, "Invalid grade ID", http.StatusBadRequest)
+		return
+	}
+
+	rows, err := config.DB.Query("SELECT id, name, grade_id FROM subjects WHERE grade_id = ?", gradeID)
+	if err != nil {
+		http.Error(w, "Failed to query subjects by grade", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var subjects []models.Subject
+	for rows.Next() {
+		var s models.Subject
+		if err := rows.Scan(&s.ID, &s.Name, &s.GradeID); err != nil {
+			http.Error(w, "Failed to scan row", http.StatusInternalServerError)
+			return
+		}
+		subjects = append(subjects, s)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(subjects)
 }

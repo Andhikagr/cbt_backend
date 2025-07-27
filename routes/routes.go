@@ -60,6 +60,8 @@ func SetupRoutes() http.Handler {
 	r.HandleFunc("/answers/{id}", handlers.GetAnswerByID).Methods("GET")
 	r.HandleFunc("/users", handlers.GetUsers).Methods("GET")
 	r.HandleFunc("/users/{id}", handlers.GetUserByID).Methods("GET")
+	r.HandleFunc("/grades/{id}/subjects", handlers.GetSubjectsByGradeID).Methods("GET")
+
 
 	// ====== JWT Protected Routes (Login Required) ======
 	authRoutes := r.PathPrefix("/").Subrouter()

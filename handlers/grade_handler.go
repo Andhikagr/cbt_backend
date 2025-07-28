@@ -99,4 +99,20 @@ func GetGradeByID(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(g)
 }
 
+// GET /grades/by-name/{name}
+func GetGradeByName(w http.ResponseWriter, r *http.Request) {
+    name := mux.Vars(r)["name"]
+    var grade models.Grade
+    err := config.DB.QueryRow("SELECT id, name FROM grades WHERE name = ?", name).Scan(&grade.ID, &grade.Name)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            http.Error(w, "Grade not found", http.StatusNotFound)
+        } else {
+            http.Error(w, "Server error", http.StatusInternalServerError)
+        }
+        return
+    }
+    json.NewEncoder(w).Encode(grade)
+}
+
 

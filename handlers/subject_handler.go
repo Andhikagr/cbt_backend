@@ -13,27 +13,65 @@ import (
 )
 
 // GET /subjects
+// func GetAllSubjects(w http.ResponseWriter, r *http.Request) {
+// 	rows, err := config.DB.Query("SELECT id, name, grade_id FROM subjects")
+// 	if err != nil {
+// 		http.Error(w, "Failed to query subjects", http.StatusInternalServerError)
+// 		return
+// 	}
+// 	defer rows.Close()
+
+// 	var subjects []models.Subject
+// 	for rows.Next() {
+// 		var s models.Subject
+// 		if err := rows.Scan(&s.ID, &s.Name, &s.GradeID); err != nil {
+// 			http.Error(w, "Failed to scan row", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		subjects = append(subjects, s)
+// 	}
+
+// 	w.Header().Set("Content-Type", "application/json")
+// 	json.NewEncoder(w).Encode(subjects)
+// }
 func GetAllSubjects(w http.ResponseWriter, r *http.Request) {
-	rows, err := config.DB.Query("SELECT id, name, grade_id FROM subjects")
-	if err != nil {
-		http.Error(w, "Failed to query subjects", http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
+    gradeIDStr := r.URL.Query().Get("grade_id")
 
-	var subjects []models.Subject
-	for rows.Next() {
-		var s models.Subject
-		if err := rows.Scan(&s.ID, &s.Name, &s.GradeID); err != nil {
-			http.Error(w, "Failed to scan row", http.StatusInternalServerError)
-			return
-		}
-		subjects = append(subjects, s)
-	}
+    var rows *sql.Rows
+    var err error
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(subjects)
+    if gradeIDStr != "" {
+        gradeID, err := strconv.Atoi(gradeIDStr)
+        if err != nil {
+            http.Error(w, "Invalid grade_id", http.StatusBadRequest)
+            return
+        }
+
+        rows, err = config.DB.Query("SELECT id, name, grade_id FROM subjects WHERE grade_id = ?", gradeID)
+    } else {
+        rows, err = config.DB.Query("SELECT id, name, grade_id FROM subjects")
+    }
+
+    if err != nil {
+        http.Error(w, "Failed to query subjects", http.StatusInternalServerError)
+        return
+    }
+    defer rows.Close()
+
+    var subjects []models.Subject
+    for rows.Next() {
+        var s models.Subject
+        if err := rows.Scan(&s.ID, &s.Name, &s.GradeID); err != nil {
+            http.Error(w, "Failed to scan row", http.StatusInternalServerError)
+            return
+        }
+        subjects = append(subjects, s)
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(subjects)
 }
+
 
 // POST /subjects
 func CreateSubject(w http.ResponseWriter, r *http.Request) {
